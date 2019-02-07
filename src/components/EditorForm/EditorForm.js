@@ -7,17 +7,24 @@ import './EditorForm.css'
 class EditorForm extends Component {
 
     state = {
-        page: null,
+        title: '',
+        content: '',
         pageId: CATEGORYPAGES[0],
         loading: true
     };
 
-    getData = id => {
-        axios.get('pages/' + id + '.json').then(response => {
-            console.log(response);
+    getData = (pageId) => {
 
-            this.setState({page: response.data, loading: false});
-        })
+        let url = 'pages.json';
+
+        axios.get(url).then(response => {
+            const { data } = response;
+            const obj = data[pageId];
+            const title = obj.title;
+            const content = obj.content;
+            this.setState({loading: false, title: title, content: content, pageId: pageId});
+        });
+
     };
 
     componentDidMount() {
@@ -30,9 +37,13 @@ class EditorForm extends Component {
         this.setState({[name]: value})
     };
 
-    submitHandler = (event, page) => {
+    submitHandler = (event) => {
+        const item = {
+            title: this.state.title,
+            content: this.state.content
+        };
         event.preventDefault();
-        axios.put('pages/' + this.state.pageId + '.json', page).then(() => {
+        axios.put('pages/' + this.state.pageId + '.json', item).then(() => {
             this.props.history.push({
                 pathname: '/pages/' + this.state.pageId
             });
@@ -40,14 +51,18 @@ class EditorForm extends Component {
     };
 
     idChanged = event => {
-        this.setState({pageId: event.target.value});
-
         this.getData(event.target.value);
+    };
+
+    onFocus = event => {
+        const {name} = event.target;
+
+        this.setState({[name]: ''})
     };
 
     render() {
         return (
-            <form className="EditorForm" onSubmit={event => this.submitHandler(event, this.state.page)}>
+            <form className="EditorForm" onSubmit={event => this.submitHandler(event)}>
                 <p>Select page: </p>
                 <select name="categoryPage" onChange={this.idChanged} value={this.state.pageId} className="SelectEditor">
                     {CATEGORYPAGES.map(categoryId => (
@@ -55,11 +70,11 @@ class EditorForm extends Component {
                     ))}
                 </select>
                 <p>Title: </p>
-                <input type="text" name="title" placeholder="Title" value={this.state.page.title}
-                       onChange={this.valueChanged} className="InputEditor" />
+                <input type="text" name="title" placeholder="Title" value={this.state.title}
+                       onChange={this.valueChanged} onFocus={this.onFocus}  className="InputEditor" />
                 <p>Content: </p>
-                <textarea name="pageText" placeholder="Content" value={this.state.page.content}
-                          onChange={this.valueChanged} className="InputEditor"/>
+                <textarea name="content" placeholder="Content" value={this.state.content}
+                          onChange={this.valueChanged} onFocus={this.onFocus}  className="InputEditor"/>
                 <button type="submit" className="Save">Save</button>
             </form>
         );
