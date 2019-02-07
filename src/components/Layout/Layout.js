@@ -1,6 +1,7 @@
 import React, {Fragment} from 'react';
 import Toolbar from "../Navigation/Toolbar/Toolbar";
 import './Layout.css'
+import Footer from "../Footer/Footer";
 
 const Layout = props => (
     <Fragment>
@@ -8,6 +9,7 @@ const Layout = props => (
         <main className="Layout-Content">
             {props.children}
         </main>
+        <Footer/>
     </Fragment>
 );
 
